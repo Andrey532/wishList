@@ -1,20 +1,24 @@
 // import { useState } from "react"
-import { SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
+import { registrationUserThunk } from "../../../redux/slices/authSlice"
+import { useAppDispatch, useAppSelector } from "../../../hooks/hooks"
+import { RootState } from "../../../redux/store"
 
-// interface ModalRegistrationType {
-
-// }
-
-interface RegistrationFormType {
-    name: string
-    password: string
-    email: string
-    selectGender: string
-    userAgreement: boolean
+interface ModalRegistrationType {
 }
 
-const nameConfig = {
-    required: "Name is required",
+interface RegistrationFormType {
+    email: string
+    password: string
+}
+
+const emailConfig = {
+    required: "Email is required!",
+    pattern: {
+        
+        value: /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu,
+        message: "Please enter valid email!"
+    }
 }
 
 const passwordConfig = {
@@ -25,32 +29,30 @@ const passwordConfig = {
     }
 }
 
-const emailConfig = {
-    required: "Email is required!",
-    pattern: {
-        value: /^([a-z0-9_-]+\.)*[a-z0-9_-]+@[a-z0-9_-]+(\.[a-z0-9_-]+)*\.[a-z]{2,6}$/,
-        message: "Please enter valid email!"
-    }
-}
+export const ModalRegistration: React.FC<ModalRegistrationType> = () => {
+    const isRegistrated: boolean = useAppSelector((state: RootState) => state.auth.isRegistrated)
 
-export const ModalRegistration = () => {
+    if(isRegistrated) {
+        console.log('Fuck you')
+    }
+
+    const dispatch = useAppDispatch()
     const { register, handleSubmit, formState: { errors } } = useForm<RegistrationFormType>();
-    // const [data, setData ] = useState("")
 
-    const submit: SubmitHandler<RegistrationFormType> = data => {
-        console.log(data)
+    const onSubmit = (data: RegistrationFormType) => {
+        dispatch(registrationUserThunk(data))
     }
 
-    const error: SubmitErrorHandler<RegistrationFormType> = data => {
-        console.log(data)
-    }
+    // const error: SubmitErrorHandler<RegistrationFormType> = (data) => {
+    //     console.log(data)
+    // }
 
     return <>
-        <form onSubmit={handleSubmit(submit, error)}>
-            <input type="name" {...register("name", nameConfig)}
-                placeholder={"Name"} />
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <input {...register("email", emailConfig)}
+                placeholder="Email" />
             <br />
-            {errors.name && (<span style={{ color: "red" }}>{errors.name.message}</span>)}
+            {errors.email && (<span style={{ color: "red" }}>{errors.email.message}</span>)}
             <br />
 
             <input type="password"
@@ -60,24 +62,8 @@ export const ModalRegistration = () => {
             {errors.password && (<span style={{ color: "red" }}>{errors?.password?.message}</span>)}
             <br />
 
-            <input {...register("email", emailConfig)}
-                placeholder="Email" />
-            <br />
-            {errors.email && (<span style={{ color: "red" }}>{errors.email.message}</span>)}
-            <br />
-
-            <select {...register("selectGender", { required: true })}>
-                <option value="">Select...</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-            </select>
-            <br />
-
-            <input type="checkbox"
-                {...register("userAgreement")} />
-            <br />
-
             <button>Зареєструватись</button>
+
         </form>
     </>
 }
