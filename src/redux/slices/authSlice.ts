@@ -11,26 +11,26 @@ interface AuthState {
     user: User | null
     isLoggedIn: boolean
     data: User[]
+    error: null | string
 }
 
-const initialState:AuthState = {
+const initialState: AuthState = {
     isRegistrated: false,
     user: null,
     isLoggedIn: false,
-    data: [{email: '', password: ''}]
+    data: [{ email: '', password: '' }],
+    error: null
 }
 
-export const registrationUserThunk = createAsyncThunk( 
-    "auth/registerUser",
-    async ( userData: { email: string; password: string }, thunkAPI) => {
+export const registrationUserThunk = createAsyncThunk(
+    "auth/registrationUser",
+    async (userData: { email: string; password: string }, thunkAPI) => {
         try {
-            await axios.post("http://localhost:3000/auth/registration", userData)
+            const res = await axios.post("http://localhost:3000/auth/registration", userData)
             thunkAPI.dispatch(isRegistrated(true))
-            //return res.data
-        } catch (error) {
-            if(error instanceof Error){
-                console.log(error.message)
-            }
+            return res.data
+        } catch (error: any) {
+            return thunkAPI.rejectWithValue(error.response.data.message)
         }
     }
 )
@@ -43,25 +43,24 @@ const authSlice = createSlice({
             state.isLoggedIn = true
             state.user = action.payload
         },
-        logoutReducer(state) {
-            state.isLoggedIn = false
-            state.user = null
-        },
-        isRegistrated(state,  action: PayloadAction<boolean>){
+        isRegistrated(state, action: PayloadAction<boolean>) {
             state.isRegistrated = action.payload
         },
-        setUser(state, action: PayloadAction<User>){
+        setUser(state, action: PayloadAction<User>) {
             state.data.push(action.payload)
+        },
+        clearError(state) {
+            state.error = null
         }
     },
     extraReducers: (builder) => {
-        builder.addCase(registrationUserThunk.fulfilled, (state) => {
-            state.isLoggedIn = true
-            //state.user = action.payload
+        builder.addCase(registrationUserThunk.rejected, (state: any, action) => {
+            state.error = action.payload
+            state.isRegistrated = false
         })
     }
 })
 
-export const { loginReducer, logoutReducer, setUser, isRegistrated } = authSlice.actions
+export const { loginReducer, setUser, isRegistrated } = authSlice.actions
 
 export default authSlice.reducer

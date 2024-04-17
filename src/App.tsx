@@ -1,19 +1,16 @@
-import { Route, Routes } from 'react-router-dom'
 import './App.css'
-import { ModalRegistration } from './components/modals/modalRegistration/ModalRegistration'
+import { Route, Routes } from 'react-router-dom'
 import { HomePage } from './pages/homePage/HomePage'
 import { MainPage } from './pages/mainPage/MainPage'
 
-function App() {
+const App = () => {
 
     return (
         <>
-        <Routes>
-            <Route path="*" element={<MainPage/>}/>
-            <Route path="/home" element={<HomePage/>}/>
-            <Route path="/registration" element={<ModalRegistration/>}/>
-        </Routes>
-            
+            <Routes>
+                <Route path="*" element={<MainPage />} />
+                <Route path="/home" element={<HomePage />} />
+            </Routes>
         </>
     )
 }
